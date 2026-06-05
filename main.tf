@@ -39,26 +39,32 @@ module "blog_sg" {
   #ingress_rules       = ["http-80-tcp","https-443-tcp"]
   #ingress_cidr_blocks = ["0.0.0.0/0"]
 
-  #egress_rules       = ["all-all"]
-  #egress_cidr_blocks = ["0.0.0.0/0"]
-  
-  ingress_with_cidr_blocks = [
-    {
-      rule        = "http-80-tcp"
-      cidr_blocks = "0.0.0.0/0"
-    },
-    {
-      rule        = "https-443-tcp"
-      cidr_blocks = "0.0.0.0/0"
+  # v6 uses a map of objects directly for ingress rules
+  ingress_rules = {
+    http = {
+      from_port   = 80
+      to_port     = 80
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+      description = "HTTP traffic"
     }
-  ]
+    https = {
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+      description = "HTTPS traffic"
+    }
+  }
 
-  egress_with_cidr_blocks = [
-    {
-      rule        = "all-all"
-      cidr_blocks = "0.0.0.0/0"
+  # v6 egress map format
+  egress_rules = {
+    all_traffic = {
+      ip_protocol = "-1" # "-1" means all protocols
+      cidr_ipv4   = "0.0.0.0/0"
     }
-  ]
+  }
+
 }
 
 resource "aws_security_group" "blog" {
